@@ -1,12 +1,5 @@
 # -nvidia_stock_analysis
 
-
-
-# NVIDIA Stock Analysis with Linear and Regularized Least Squares
-
-
-
-
 ### Files Overview
 | File                  | Description                                                                                   |
 |-----------------------|-----------------------------------------------------------------------------------------------|
