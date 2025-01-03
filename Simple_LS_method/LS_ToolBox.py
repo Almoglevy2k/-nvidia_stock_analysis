@@ -31,7 +31,6 @@ def solve_least_squares(learn_matrix, next_day_vector):
     A = learn_matrix
     b = next_day_vector
     # Solve A.T @ A @ x = A.T @ b
-    #x = np.linalg.inv(A.T @ A) @ A.T @ b  # Coefficients vector
     x = np.linalg.lstsq(A, b, rcond=None)[0]
     return x
 
@@ -87,8 +86,6 @@ def simple_threshold_strategy(actual_closes, predicted_closes, threshold=1.005, 
 
     return wallet, wallet_values, trades
 
-
-
 # Plot wallet value over time and mark trade days
 def plot_wallet_values(wallet_values, trades):
     x = range(len(wallet_values))
@@ -115,7 +112,7 @@ def plot_wallet_values(wallet_values, trades):
     plt.show()
 
 # Train model, predict prices, and simulate strategy
-def train_and_show(ticker):
+def train_and_show(ticker, threshold=1.005):
     train_start_date = "2022-01-01"
     train_end_date = "2023-12-31"
     test_start_date = "2024-01-01"
@@ -140,18 +137,35 @@ def train_and_show(ticker):
     # Predict prices using test data
     prediction_vector = get_prediction_vector(test_matrix, x)
 
+    # Calculate training MSE
+    train_predictions = learn_matrix @ x
+    train_mse = np.mean((b_train - train_predictions) ** 2)
+
+    # Calculate test MSE
+    test_closes_array = stock_data_test['Close'].values
+    actual_closes_for_trading = test_closes_array[training_window:]
+    test_mse = np.mean((actual_closes_for_trading - prediction_vector) ** 2)
+
+    # Variance of test set
+    test_variance = np.var(actual_closes_for_trading)
+
+    # Print metrics
+    print(f"Training MSE: {train_mse:.4f}")
+    print(f"Test MSE: {test_mse:.4f}")
+    print(f"Test Variance: {test_variance:.4f}")
+    print(f"Test MSE/Variance Ratio: {test_mse / test_variance:.4f}")
+
     # Plot predictions
     plot_predictions_by_date(stock_data_test, prediction_vector, training_window)
 
     # Simulate trading strategy
-    test_closes_array = stock_data_test['Close'].values
-    actual_closes_for_trading = test_closes_array[training_window:]
     predicted_closes_for_trading = prediction_vector
-
     final_wallet, wallet_values, trades = simple_threshold_strategy(
         actual_closes=actual_closes_for_trading,
         predicted_closes=predicted_closes_for_trading,
+        threshold=threshold,
         initial_wallet=10_000.0
     )
     print(f"Final wallet: ${final_wallet:.2f} (Started with $10,000.00, Change: {((final_wallet - 10_000) / 10_000) * 100:.2f}%)")
     plot_wallet_values(wallet_values, trades)
+

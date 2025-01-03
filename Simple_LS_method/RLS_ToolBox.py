@@ -49,7 +49,7 @@ def tune_alpha(learn_matrix, next_day_vector, alphas):
     print(f"Tuned alpha: {best_alpha}, MSE: {best_mse:.4f}")
     return best_alpha
 
-def trainREG_and_show(ticker):
+def trainREG_and_show(ticker, threshold=1.005):
     train_start_date = "2022-01-01"
     train_end_date = "2023-12-31"
     test_start_date = "2024-01-01"
@@ -66,7 +66,7 @@ def trainREG_and_show(ticker):
     b_train = get_next_day_vector(train_prices_array, training_window)
 
     # Tune alpha for regularization
-    alphas = [0.1, 1.0, 10.0, 100.0]  # Define a range of alphas
+    alphas = [0.01, 0.1, 1.0, 10.0]  # Define a range of alphas
     best_alpha = tune_alpha(learn_matrix, b_train, alphas)
 
     # Solve regularized least squares with the tuned alpha
@@ -78,20 +78,35 @@ def trainREG_and_show(ticker):
     # Predict prices using test data
     prediction_vector = get_prediction_vector(test_matrix, x)
 
+    # Calculate training MSE
+    train_predictions = learn_matrix @ x
+    train_mse = np.mean((b_train - train_predictions) ** 2)
+
+    # Calculate test MSE
+    test_closes_array = stock_data_test['Close'].values
+    actual_closes_for_trading = test_closes_array[training_window:]
+    test_mse = np.mean((actual_closes_for_trading - prediction_vector) ** 2)
+
+    # Variance of test set
+    test_variance = np.var(actual_closes_for_trading)
+
+    # Print metrics
+    print(f"Tuned alpha: {best_alpha}")
+    print(f"Training MSE: {train_mse:.4f}")
+    print(f"Test MSE: {test_mse:.4f}")
+    print(f"Test Variance: {test_variance:.4f}")
+    print(f"Test MSE/Variance Ratio: {test_mse / test_variance:.4f}")
+
     # Plot predictions
     plot_predictions_by_date(stock_data_test, prediction_vector, training_window)
 
     # Simulate trading strategy
-    test_closes_array = stock_data_test['Close'].values
-    actual_closes_for_trading = test_closes_array[training_window:]
     predicted_closes_for_trading = prediction_vector
-
     final_wallet, wallet_values, trades = simple_threshold_strategy(
         actual_closes=actual_closes_for_trading,
         predicted_closes=predicted_closes_for_trading,
-        threshold=1.005,
+        threshold=threshold,
         initial_wallet=10_000.0
     )
     print(f"Final wallet: ${final_wallet:.2f} (Started with $10,000.00, Change: {((final_wallet - 10_000) / 10_000) * 100:.2f}%)")
     plot_wallet_values(wallet_values, trades)
-
