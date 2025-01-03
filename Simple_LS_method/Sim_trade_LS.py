@@ -1,9 +1,9 @@
 import sys
-from ToolBox import *
+from RLS_ToolBox import *
 
 def main():
     if len(sys.argv) != 2:
-        print("Usage: python simulate_trade_LS.py <ticker>")
+        print("Usage: python Sim_trade_LS.py <ticker>")
         sys.exit(1)
     
     ticker = sys.argv[1]
