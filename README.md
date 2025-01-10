@@ -7,7 +7,7 @@
 | `Sim_trade_RLS.py`    | Main script for running regularized Ridge regression (RLS) stock price prediction and trading simulation. |
 | `LS_ToolBox.py`       | Toolbox containing helper functions for building matrices, downloading stock data, and solving LS regression models. |
 | `RLS_ToolBox.py`      | Toolbox containing helper functions for regularized Ridge regression, including alpha tuning and prediction generation. |
-| `about_Nvidia_stock_analysis.pdf'|A small article detailing the code implementation and the analysis of the NVIDIA stock, including results and explanations.|
+|  `about_Nvidia_stock_analysis.pdf` |A small article detailing the code implementation and the analysis of the NVIDIA stock, including results and explanations.|
 
 
 ## What Each Script Returns
