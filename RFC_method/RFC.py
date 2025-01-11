@@ -118,21 +118,6 @@ def main():
     target_distribution = predictions["Target"].value_counts() / predictions.shape[0]
     print("Target Distribution:\n", target_distribution)
 
-    # Simulate trading using predictions
-    sp500["Predictions"] = predictions["Predictions"]
-    wallet_history = simulate_trading_with_predictions(sp500, initial_wallet=1000)
-
-    # Plot wallet history
-    plt.figure(figsize=(10, 6))
-    plt.plot(wallet_history, label="Wallet Value")
-    plt.title("Simulated Trading Wallet Value Over Time")
-    plt.xlabel("Days")
-    plt.ylabel("Wallet Value ($)")
-    plt.legend()
-    plt.grid(True)
-    plt.tight_layout()
-    plt.show()
-
     # Plot actual vs. predicted prices
     score = precision_score(predictions["Target"], predictions["Predictions"])
     print(f"Precision: {score:.2f}")
