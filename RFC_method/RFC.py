@@ -53,8 +53,6 @@ def predictor(train, test, predictors, model):
     combined.columns = ["Target", "Predictions"]
     return combined
 
-import sys  # Required to flush output
-
 def backtest(data, model, predictors, start=500, step=250):
     """Backtest the model using the test data."""
     all_predictions = []
