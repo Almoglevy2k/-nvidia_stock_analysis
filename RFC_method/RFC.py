@@ -1,9 +1,10 @@
 import yfinance as yf
 import matplotlib.pyplot as plt
 import pandas as pd
+import numpy as np
 from sklearn.ensemble import RandomForestClassifier
 from sklearn.metrics import precision_score
-
+import sys # Required to flush output  
 
 def download_stock_data(ticker):
     return yf.Ticker(ticker)
@@ -42,7 +43,9 @@ def define_model():
 
 def get_predictions(model, test, predictors):
     """Predict the target values for the test data."""
-    preds = model.predict(test[predictors])
+    preds = model.predict_proba(test[predictors])[:, 1]
+    preds[preds >= 0.6] = 1  # Threshold for classifying as 1
+    preds[preds < 0.6] = 0   # Threshold for classifying as 0
     return pd.Series(preds, index=test.index, name="Predictions")
 
 def predictor(train, test, predictors, model):
@@ -89,8 +92,7 @@ def add_statistics(data):
         trend_column = f"Trend_{horizon}"
         data[trend_column] =data.shift(1).rolling(horizon).sum()["Target"]
     data.dropna(inplace=True)                       
-
-
+    
 def main():
     # Create a figure with two side-by-side subplots
     fig, axes = plt.subplots(1, 2, figsize=(14, 6))
@@ -101,10 +103,9 @@ def main():
     data_preprocessing(sp500)
 
     # Dynamically define predictors
-    base_predictors = ["Close", "Volume", "Open", "High", "Low"]
     ratio_predictors = [col for col in sp500.columns if col.startswith("Close_Ratio_")]
     trend_predictors = [col for col in sp500.columns if col.startswith("Trend_")]
-    predictors = base_predictors + ratio_predictors + trend_predictors
+    predictors = ratio_predictors + trend_predictors
 
     # Define and backtest the model
     model = define_model()
@@ -117,9 +118,27 @@ def main():
     target_distribution = predictions["Target"].value_counts() / predictions.shape[0]
     print("Target Distribution:\n", target_distribution)
 
+    # Simulate trading using predictions
+    sp500["Predictions"] = predictions["Predictions"]
+    wallet_history = simulate_trading_with_predictions(sp500, initial_wallet=1000)
+
+    # Plot wallet history
+    plt.figure(figsize=(10, 6))
+    plt.plot(wallet_history, label="Wallet Value")
+    plt.title("Simulated Trading Wallet Value Over Time")
+    plt.xlabel("Days")
+    plt.ylabel("Wallet Value ($)")
+    plt.legend()
+    plt.grid(True)
     plt.tight_layout()
     plt.show()
 
+    # Plot actual vs. predicted prices
+    score = precision_score(predictions["Target"], predictions["Predictions"])
+    print(f"Precision: {score:.2f}")
+
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
     main()
