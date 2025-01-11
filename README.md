@@ -1,56 +1,57 @@
-# -nvidia_stock_analysis
+# Stock Analysis & Trading Simulations
 
-### Files Overview
-| File                  | Description                                                                                   |
-|-----------------------|-----------------------------------------------------------------------------------------------|
-| `Sim_trade_LS.py`     | Main script for running non-regularized least squares (LS) stock price prediction and trading simulation. |
-| `Sim_trade_RLS.py`    | Main script for running regularized Ridge regression (RLS) stock price prediction and trading simulation. |
-| `LS_ToolBox.py`       | Toolbox containing helper functions for building matrices, downloading stock data, and solving LS regression models. |
-| `RLS_ToolBox.py`      | Toolbox containing helper functions for regularized Ridge regression, including alpha tuning and prediction generation. |
-|  `about_Nvidia_stock_analysis.pdf` |A small article detailing the code implementation and the analysis of the NVIDIA stock, including results and explanations.|
+This repository contains **two complementary approaches** to analyzing and simulating trades on NVIDIA (or any other) stock data:
 
+1. **Linear and Regularized Least Squares (LS / RLS)**  
+2. **Random Forest Classifier (RFC)**  
 
-## What Each Script Returns
-
-### `Sim_trade_LS.py`
-- Predicts stock prices using non-regularized least squares.
-- Evaluates performance using metrics:
-  - **Training MSE**.
-  - **Test MSE**.
-  - **Variance of test data**.
-  - **MSE-to-variance ratio**.
-- Simulates a simple trading strategy:
-  - Outputs the final wallet value after trading based on the model predictions.
-
-### `Sim_trade_RLS.py`
-- Predicts stock prices using regularized Ridge regression.
-- Tunes the regularization strength (`alpha`) and reports the best value.
-- Evaluates performance with the same metrics as `Sim_trade_LS.py`.
-- Simulates trading and reports the final wallet value.
-
-### `LS_ToolBox.py`
-- Utility functions for:
-  - Downloading stock data from Yahoo Finance (`yfinance`).
-  - Preparing training and test matrices.
-  - Solving least squares models.
-  - Simulating a simple trading strategy.
-
-### `RLS_ToolBox.py`
-- Utility functions for:
-  - Solving Ridge regression models with regularization.
-  - Tuning the `alpha` parameter for Ridge regression.
-  - Generating predictions using the regularized model.
+Both approaches download stock data, create predictive models, backtest on historical periods, **print performance metrics**, and run a **simple daily trading simulation** (e.g., buy if tomorrow is predicted up, sell at the close).
 
 ---
 
-## How to Use
+## Repository Structure
 
-### 1. Non-Regularized LS Model
-Run `Sim_trade_LS.py` to predict stock prices and simulate trading with non-regularized least squares:
-```bash
-python Sim_trade_LS.py <ticker> [<threshold>]
+### 1. LS-Based Directory
+- **`Sim_trade_LS.py`**  
+  Main script for **non-regularized** least squares. Predicts stock prices, prints metrics (MSE, MSE-to-variance, etc.), and simulates a simple trading strategy.
+- **`Sim_trade_RLS.py`**  
+  Main script for **regularized** (Ridge) least squares. Tunes the regularization parameter (`alpha`), prints best alpha, prints metrics, and simulates trading.
+- **`LS_ToolBox.py`**  
+  Helper functions for building matrices, downloading data, and solving non-regularized least squares.
+- **`RLS_ToolBox.py`**  
+  Helper functions for **Ridge regression** (regularized LS): alpha tuning, solution, predictions, etc.
 
-### 2. Regularized LS Model
-Run `Sim_trade_RLS.py` to predict stock prices and simulate trading with non-regularized least squares:
-```bash
-python Sim_trade_LS.py <ticker> [<threshold>]
+### 2. RFC-Based Directory
+- **`RFC_ToolBox.py`**  
+  Core logic for data preprocessing, model training, backtesting, and a simple daily trading strategy, all using a **Random Forest Classifier**.
+- **`Sim_trade_RFC.py`**  
+  Command-line script that accepts optional arguments (`--ticker`, `--threshold`) to run the **RFC** workflow. Prints model precision, final wallet, and simulates daily trades.
+
+### 3. (Optional) `requirements.txt`
+A file listing the packages and versions needed (e.g., `yfinance`, `pandas`, `numpy`, `matplotlib`, `scikit-learn`).
+
+---
+
+## Installation & Setup
+
+1. **Clone or Download** this repository.
+2. **Install Dependencies** (if you have a `requirements.txt`):
+   ```bash
+   pip install -r requirements.txt
+   ```
+
+## How to run 
+Each script supports a --help option that explains usage, arguments, and defaults. For example:
+
+# LS Simulation 
+ ```bash
+python Sim_trade_LS.py --help
+ ```
+# RLS Simulation 
+ ```bash
+python Sim_trade_RLS.py --help
+ ```
+# RFC Simulation
+  ```bash
+python Sim_trade_RFC.py --help
+ ```
